@@ -126,7 +126,24 @@ This dashboard uses **100% free, no-API-key-required** data sources:
 
 - Data is cached for 1-10 minutes depending on the metric
 - API calls include rate limiting to respect free tier limits
-- Automatic fallback mechanisms if primary APIs fail
+- **Automatic Demo Mode** - If APIs are unreachable (network restrictions, rate limits), the dashboard automatically switches to realistic demo data
+- All features remain functional in demo mode for testing and demonstration
+
+### Demo Mode
+
+If you see a warning banner stating "Demo Mode Active", the dashboard is displaying realistic simulated data because:
+- External APIs are unreachable (firewall, proxy, or network restrictions)
+- API rate limits have been exceeded
+- Internet connection is unavailable
+
+**Demo mode provides:**
+- Realistic Bitcoin price patterns based on historical trends
+- Fully functional technical indicators
+- Simulated Fear & Greed Index
+- Mock on-chain metrics
+- Generated macro economic data
+
+This ensures the dashboard can be tested and demonstrated even without internet access!
 
 ## Features Explained
 

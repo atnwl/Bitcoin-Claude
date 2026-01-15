@@ -75,7 +75,29 @@ Or use the provided script:
 
 The dashboard will open in your browser at `http://localhost:8501`
 
+## Demo Mode
+
+**If you see "Demo Mode Active" when running the dashboard**, don't worry! This is a feature, not a bug.
+
+The dashboard automatically switches to **demo mode** when it can't reach external APIs due to:
+- Network restrictions (firewall, proxy, VPN)
+- API rate limits
+- No internet connection
+
+**In demo mode, you'll see:**
+- ✅ Realistic Bitcoin price patterns
+- ✅ All technical indicators working
+- ✅ Simulated Fear & Greed Index
+- ✅ Mock on-chain metrics
+- ✅ Full dashboard functionality
+
+This lets you explore and test all features even without internet access!
+
 ## Troubleshooting
+
+### "Unable to load price data" error
+
+This means the APIs are blocked. The dashboard will automatically switch to demo mode with realistic simulated data.
 
 ### "Module not found" errors
 

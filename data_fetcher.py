@@ -18,13 +18,18 @@ except ImportError:
     YFINANCE_AVAILABLE = False
     print("Warning: yfinance not available. Macro indicators will be disabled.")
 
+# Import demo data generator
+from demo_data import DemoDataGenerator
+
 
 class DataFetcher:
     """Fetches cryptocurrency and macro economic data from various sources"""
 
-    def __init__(self):
+    def __init__(self, demo_mode: bool = False):
         self.coingecko_base = "https://api.coingecko.com/api/v3"
         self.fear_greed_api = "https://api.alternative.me/fng/"
+        self.demo_mode = demo_mode
+        self.api_failed = False  # Track if APIs are failing
 
     def get_bitcoin_price_data(self, days: int = 365) -> pd.DataFrame:
         """
@@ -36,6 +41,11 @@ class DataFetcher:
         Returns:
             DataFrame with OHLCV data
         """
+        # Use demo data if in demo mode or if APIs have failed
+        if self.demo_mode or self.api_failed:
+            print(f"📊 Using demo data (demo_mode={self.demo_mode}, api_failed={self.api_failed})")
+            return DemoDataGenerator.generate_bitcoin_price_data(days)
+
         try:
             url = f"{self.coingecko_base}/coins/bitcoin/market_chart"
             params = {
@@ -68,8 +78,10 @@ class DataFetcher:
             return df
 
         except Exception as e:
-            print(f"Error fetching Bitcoin data: {e}")
-            return self._get_fallback_btc_data(days)
+            print(f"⚠️  Error fetching Bitcoin data from API: {e}")
+            print("🔄 Switching to demo mode...")
+            self.api_failed = True  # Switch to demo mode for subsequent calls
+            return DemoDataGenerator.generate_bitcoin_price_data(days)
 
     def get_current_bitcoin_price(self) -> Dict:
         """
@@ -78,6 +90,9 @@ class DataFetcher:
         Returns:
             Dictionary with current price data
         """
+        if self.demo_mode or self.api_failed:
+            return DemoDataGenerator.generate_current_bitcoin_price()
+
         try:
             url = f"{self.coingecko_base}/simple/price"
             params = {
@@ -100,13 +115,9 @@ class DataFetcher:
             }
 
         except Exception as e:
-            print(f"Error fetching current Bitcoin price: {e}")
-            return {
-                'price': 0,
-                'change_24h': 0,
-                'volume_24h': 0,
-                'market_cap': 0
-            }
+            print(f"⚠️  Error fetching current Bitcoin price: {e}")
+            self.api_failed = True
+            return DemoDataGenerator.generate_current_bitcoin_price()
 
     def get_fear_greed_index(self) -> Dict:
         """
@@ -115,6 +126,9 @@ class DataFetcher:
         Returns:
             Dictionary with Fear & Greed data
         """
+        if self.demo_mode or self.api_failed:
+            return DemoDataGenerator.generate_fear_greed_index()
+
         try:
             response = requests.get(self.fear_greed_api, params={'limit': 30}, timeout=10)
             response.raise_for_status()
@@ -135,13 +149,9 @@ class DataFetcher:
             }
 
         except Exception as e:
-            print(f"Error fetching Fear & Greed Index: {e}")
-            return {
-                'current_value': 50,
-                'current_classification': 'Neutral',
-                'timestamp': datetime.now(),
-                'historical': pd.DataFrame()
-            }
+            print(f"⚠️  Error fetching Fear & Greed Index: {e}")
+            self.api_failed = True
+            return DemoDataGenerator.generate_fear_greed_index()
 
     def get_on_chain_metrics(self) -> Dict:
         """
@@ -150,6 +160,9 @@ class DataFetcher:
         Returns:
             Dictionary with on-chain metrics
         """
+        if self.demo_mode or self.api_failed:
+            return DemoDataGenerator.generate_on_chain_metrics()
+
         metrics = {}
 
         try:
@@ -196,9 +209,11 @@ class DataFetcher:
                 }
 
         except Exception as e:
-            print(f"Error fetching on-chain metrics: {e}")
+            print(f"⚠️  Error fetching on-chain metrics: {e}")
+            self.api_failed = True
+            return DemoDataGenerator.generate_on_chain_metrics()
 
-        return metrics
+        return metrics if metrics else DemoDataGenerator.generate_on_chain_metrics()
 
     def get_macro_indicators(self, days: int = 365) -> Dict[str, pd.DataFrame]:
         """
@@ -210,8 +225,11 @@ class DataFetcher:
         Returns:
             Dictionary of DataFrames for each indicator
         """
+        if self.demo_mode or self.api_failed:
+            return DemoDataGenerator.generate_macro_indicators(days)
+
         if not YFINANCE_AVAILABLE:
-            return {}
+            return DemoDataGenerator.generate_macro_indicators(days)
 
         indicators = {}
         end_date = datetime.now()

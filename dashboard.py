@@ -420,6 +420,11 @@ def main():
         on_chain = load_on_chain_metrics()
         macro_indicators = load_macro_indicators(days)
 
+    # Check if we're in demo mode
+    fetcher = DataFetcher()
+    if fetcher.api_failed or current_price.get('price', 0) == 0:
+        st.warning("⚠️  **Demo Mode Active** - Unable to reach external APIs. Displaying realistic demo data for demonstration purposes. This may occur due to network restrictions or API rate limits.")
+
     # Current Price Metrics
     col1, col2, col3, col4 = st.columns(4)
 
